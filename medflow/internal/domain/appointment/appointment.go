@@ -153,14 +153,14 @@ type CompleteAppointmentCommand struct {
 }
 
 type ListAppointmentsQuery struct {
-	PatientID  *uuid.UUID
-	DoctorID   *uuid.UUID
-	Status     *AppointmentStatus
-	Type       *AppointmentType
-	DateFrom   *time.Time
-	DateTo     *time.Time
-	Page       int
-	PageSize   int
+	PatientID *uuid.UUID
+	DoctorID  *uuid.UUID
+	Status    *AppointmentStatus
+	Type      *AppointmentType
+	DateFrom  *time.Time
+	DateTo    *time.Time
+	Page      int
+	PageSize  int
 }
 
 type PagedAppointments struct {
