@@ -1,6 +1,7 @@
 package appointment
 
 import (
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -89,12 +90,7 @@ func (a *Appointment) CanTransitionTo(newStatus AppointmentStatus) bool {
 		StatusNoShow:     {},
 	}
 
-	for _, s := range allowed[a.Status] {
-		if s == newStatus {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(allowed[a.Status], newStatus)
 }
 
 func (a *Appointment) Cancel(reason string, cancelledBy uuid.UUID) error {
