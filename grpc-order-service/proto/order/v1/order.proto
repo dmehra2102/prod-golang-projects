@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "github.com/dmehra2102/prod-golang-projects/grpc-order-service/gen/order/v1;orderv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
+
+enum OrderStatus {
+    ORDER_STATUS_UNSPECIFIED = 0;
+    ORDER_STATUS_PENDING     = 1;
+    ORDER_STATUS_CONFIRMED   = 2;
+    ORDER_STATUS_SHIPPED     = 3;
+    ORDER_STATUS_DELIVERED   = 4;
+    ORDER_STATUS_CANCELLED   = 5;
+}
+
+message LineItem {
+    string product_id = 1;
+    string name = 2;
+    int32 quantity = 3;
+    int64 unit_price_cents = 4;
+}
+
+message Order {
+    string   id         = 1;
+    string   customer_id = 2;
+    repeated LineItem items = 3;
+    int64    total_cents = 4;
+    OrderStatus status   = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+}
+
+message ShippingEvent {
+    string order_id = 1;
+    string carrier = 2;
+    string tracking_id = 3;
+    string location = 4;
+    string description = 5;
+    google.protobuf.Timestamp occurred_at = 6;
+}
+
+message CreateOrderRequest {
+    string customer_id = 1;
+    repeated LineItem items = 2;
+}
+
+message CreateOrderResponse {
+    Order order = 1;
+}
+
+message GetOrderRequest {
+    string order_id = 1;
+}
+message GetOrderResponse {
+    Order order = 1;
+}
+
+message UpdateOrderStatusRequest {
+    string      order_id = 1;
+    OrderStatus new_status = 2;
+}
+message UpdateOrderStatusResponse {
+    Order order = 1;
+}
+
+// Server Streaming: Watch shipping events for an order
+message WatchShippingRequest {
+    string order_id = 1;
+}
+
+// Client Streaming: Bulk-create orders, get a summary
+message BulkCreateOrdersRequest {
+    string   customer_id = 1;
+    repeated LineItem items = 2;
+}
+message BulkCreateOrdersResponse {
+    int32  orders_created = 1;
+    int32  orders_failed  = 2;
+    int64  total_value_cents = 3;
+    repeated string order_ids = 4;
+}
+
+message OrderCommand {
+    oneof command {
+        CreateOrderRequest create = 1;
+        UpdateOrderStatusRequest update = 2;
+        GetOrderRequest get = 3;
+    }
+}
+
+message OrderEvent {
+    string request_id = 1;
+    oneof event {
+        Order      order_created = 2;
+        Order      order_updated = 3;
+        Order      order_fetched = 4;
+        string     error_message = 5;
+    }
+}
+
+// -------------------------------
+//     Service Defination
+// -------------------------------
+service OrderService {
+    // Unary: Create a single order
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+
+    // Unary: get order by ID
+    rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+
+    // Unary: update order status
+    rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
+
+    // Server streaming: watch shipping events in real time
+    rpc WatchShipping (WatchShippingRequest) returns (stream ShippingEvent);
+
+    // Client Streaming: upload many order in one stream
+    rpc BulkCreateOrders(stream BulkCreateOrdersRequest) returns (BulkCreateOrdersResponse);
+
+    // Bidirectional streaming: multiplex commands and events
+    rpc OrderChannel(stream OrderCommand) returns (stream OrderEvent);
+}
