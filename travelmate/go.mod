@@ -6,6 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/rs/zerolog v1.34.0
+	github.com/sony/gobreaker/v2 v2.4.0
 )
 
 require (
