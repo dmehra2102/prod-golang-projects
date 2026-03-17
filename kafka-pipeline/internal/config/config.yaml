@@ -1,0 +1,95 @@
+service:
+  name: "kafka-pipeline"
+  version: "1.0.0"
+  env: "dev"
+kafka:
+  brokers:
+    - "kafka-1:9092"
+    - "kafka-2:9092"
+    - "kafka-3:9092"
+
+  security_protocol: "PLAINTEXT"
+  sasl_mechanism: ""
+  sasl_username: "${KAFKA_SASL_USERNAME}"
+  sasl_password: "${KAFKA_SASL_PASSWORD}"
+
+  producer:
+    required_acks: -1
+    max_retries: 10
+    retry_backoff: 100ms
+    idempotent_enabled: true
+    compression: "lz4"
+    linger_ms: 5
+    batch_size: 65536
+    max_in_flight: 5
+
+  consumer:
+    group_id: "payment-pipeline-v1"
+    session_timeout: 30s
+    heartbeat_interval: 10s
+    # If a single message takes >5min to process, something is very wrong.
+    max_poll_interval: 5m
+    # -2 = earliest (replay from beginning), -1 = latest (real-time only).
+    offset_initial: -2
+    # NEVER enable auto-commit in a payment pipeline.
+    auto_commit_enabled: false
+    fetch_min_bytes: 1
+    fetch_max_wait: 500ms
+    # 1 = strictly ordered processing per partition. Increase only if
+    # your processing is commutative (order doesn't matter).
+    max_processing_workers: 1
+    dlq_topic: "txn.dlq.v1"
+    max_retries: 3
+    retry_backoff: 1s
+
+  topics:
+    transacctions:
+      name: "txn.raw.v1"
+      partitions: 12
+      replication_factor: 3
+      retention_ms: 604800000
+      cleanup_policy: "delete"
+      min_isr: 2
+      extra_config:
+        # Segment size: smaller = faster cleanup but more files.
+        "segment.bytes": "104857600" # 100MB
+
+    fraud_results:
+      name: "txn.fraud-results.v1"
+      partitions: 12
+      replication_factor: 3
+      retention_ms: 604800000
+      cleanup_policy: "delete"
+      min_isr: 2
+
+    enriched_transactions:
+      name: "txn.enriched.v1"
+      partitions: 12
+      replication_factor: 3
+      retention_ms: 604800000
+      cleanup_policy: "delete"
+      min_isr: 2
+
+    notifications:
+      name: "txn.notifications.v1"
+      partitions: 6
+      replication_factor: 3
+      retention_ms: 259200000 # 3 days
+      cleanup_policy: "delete"
+      min_isr: 2
+
+    dlq:
+      name: "txn.dlq.v1"
+      partitions: 3
+      replication_factor: 3
+      # DLQ messages are kept for 30 days — you need time to investigate.
+      retention_ms: 2592000000 # 30 days
+      cleanup_policy: "delete"
+      min_isr: 2
+
+metrics:
+  port: 9090
+  path: "/metrics"
+
+health:
+  port: 8080
