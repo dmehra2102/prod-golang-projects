@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	MessagesProducer = promauto.NewCounterVec(prometheus.CounterOpts{
+	MessagesProduced = promauto.NewCounterVec(prometheus.CounterOpts{
 		Namespace: "kafka_pipeline",
 		Subsystem: "producer",
 		Name:      "messages_produced_total",
