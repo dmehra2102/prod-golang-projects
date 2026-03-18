@@ -203,6 +203,10 @@ func (h *groupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim s
 			metrics.MessagesConsumed.WithLabelValues(topic, groupID, "success").Inc()
 		}
 
+		// WHY NOT COMMIT PER MESSAGE:
+		// Committing per message is an RPC to the group coordinator per message.
+		// At 10k msg/s, that's 10k RPCs/s just for offset commits. Instead,
+		// we mark offsets and commit in batches.
 		session.MarkMessage(msg, "")
 
 		lag := max(claim.HighWaterMarkOffset()-msg.Offset-1, 0)
@@ -309,7 +313,7 @@ func isDeserializationError(err error) bool {
 	return ok
 }
 
-func isTransientError(err error) bool {
+func isTransientError(_ error) bool {
 	// In production, check for specific transient errors:
 	// - context.DeadlineExceeded
 	// - specific HTTP status codes from downstream services
