@@ -1,0 +1,18 @@
+version: v2
+modules:
+  - path: proto
+    name: buf.build/buildmart/api
+
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-echosystem/grpc-gateway
+
+lint:
+  use:
+    - STANDARD
+  except:
+    - PACKAGE_VERSION_SUFFIX
+
+breaking:
+  use:
+    - FILE
