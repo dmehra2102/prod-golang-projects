@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1;commonv1";
+
+// PageRequest is the standard pagination request.
+// RULE: Always use cursor-based pagination in production (offset dosen't scale).
+message PageRequest {
+    // Empty string means "start from the beginning".
+    string page_token = 1;
+
+    // page_size is the maximum number of items to return.
+    int32 page_size = 2;
+
+    string order_by = 3;
+}
+
+message PageResponse {
+    // next_page_token is the token for the next page.
+    // Empty string means this is the last page.
+    string next_page_token = 1;
+
+    // total_size is the total number of items
+    int64 total_size = 2;
+}

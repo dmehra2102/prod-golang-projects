@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1;commonv1";
+
+message ErrorDetail {
+    string error_code = 1;
+
+    repeated FieldViolation field_violations = 2;
+
+    map<string, string> metadata = 3;
+}
+
+message FieldViolation {
+    // field is the field path in dot notation (e.g., "address.zip_code").
+    string field = 1;
+    // description explains the violation.
+    string description = 2;
+    // value is the rejected value (string representation).
+    string value = 3;
+}
