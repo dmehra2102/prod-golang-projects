@@ -89,3 +89,39 @@ func (r *PostgresUserRepository) Create(ctx context.Context, user *userv1.User, 
 
 	return result, nil
 }
+
+func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*userv1.User, error) {
+	query := `
+		SELECT id, email, first_name, last_name, phone, status, role, created_at, updated_at
+		FROM users
+		WHERE id = $1 AND deleted_at IS NULL
+	`
+
+	return r.scanUser(r.db.QueryRowContext(ctx, query, id))
+}
+
+func (r *PostgresUserRepository) scanUser(row *sql.Row) (*userv1.User, error) {
+	var (
+		u         userv1.User
+		statusStr string
+		roleStr   string
+		createdAt time.Time
+		updatedAt time.Time
+	)
+
+	err := row.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.Phone, &statusStr, &roleStr, &createdAt, &updatedAt)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("scan user: %w", err)
+	}
+
+	u.Status = userv1.UserStatus(userv1.UserStatus_value[roleStr])
+	u.Role = userv1.UserRole(userv1.UserRole_value[roleStr])
+	u.CreatedAt = timestamppb.New(createdAt)
+	u.UpdatedAt = timestamppb.New(updatedAt)
+
+	return &u, nil
+}
