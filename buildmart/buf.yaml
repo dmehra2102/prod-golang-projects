@@ -5,7 +5,7 @@ modules:
 
 deps:
   - buf.build/googleapis/googleapis
-  - buf.build/grpc-echosystem/grpc-gateway
+  - buf.build/grpc-ecosystem/grpc-gateway
 
 lint:
   use:

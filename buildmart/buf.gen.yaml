@@ -11,7 +11,7 @@ plugins:
       - paths=source_relative
       - require_unimplemented_servers=true
 
-  - remote: buf.build/grpc-echosystem/gateway
+  - remote: buf.build/grpc-ecosystem/gateway
     out: gen/go
     opt:
       - paths=source_relative

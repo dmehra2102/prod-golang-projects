@@ -1,0 +1,261 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/buildmart/api/gen/go/user/v1;userv1";
+option java_multiple_files = true;
+option java_package = "com.buildmart.user.v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+import "common/v1/pagination.proto";
+
+enum UserStatus {
+    USER_STATUS_UNSPECIFIED = 0;
+    USER_STATUS_ACTIVE = 1;
+    USER_STATUS_SUSPENDED = 2;
+    USER_STATUS_DELETED = 3;
+}
+
+enum UserRole {
+    USER_ROLE_UNSPECIFIED = 0;
+    USER_ROLE_CUSTOMER = 1;
+    USER_ROLE_SELLER = 2;
+    USER_ROLE_ADMIN = 3;
+}
+
+message Address {
+    string street_line_1 = 1;
+    string street_line_2 = 2;
+    string city = 3;
+    string state = 4;
+    string postal_code = 5;
+    string country_code = 6;
+    bool is_default = 7;
+}
+
+message User {
+    string id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string phone = 5;
+
+    UserStatus status = 6;
+    UserRole role = 7;
+
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+
+    repeated Address addresses = 10;
+
+    map<string, string> metadata = 11;
+
+    oneof notification_preference {
+        EmailPreference email_pref = 12;
+        SmsPreference sms_pref = 13;
+        PushPreference push_pref = 14;
+    }
+
+    string profile_picture_url = 16;
+    string bio                 = 17;
+}
+
+message EmailPreference {
+    bool marketing_emails = 1;
+    bool order_updates = 2;
+    string digest_frequency = 3;
+}
+
+message SmsPreference {
+    bool order_updates = 1;
+    bool security_alerts = 2;
+}
+
+message PushPreference {
+    bool enabled = 1;
+    string device_token = 2;
+}
+
+// =========================================================
+// REQUEST / RESPONSE MESSAGES
+// =========================================================
+
+message CreateUserRequest {
+    string email = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string password = 4;
+    UserRole role = 5;
+}
+
+message CreateUserResponse {
+    User user = 1;
+}
+
+message GetUserRequest {
+    string user_id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
+// UpdateUserRequest demonstrates FieldMask — the CORRECT way to do partial updates.
+// Without FieldMask, clients would need to send the entire resource to update one field.
+message UpdateUserRequest {
+    string user_id = 1;
+    User user = 2;
+
+    google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateUserResponse {
+    User user = 1;
+}
+
+message DeleteUserRequest {
+    string user_id = 1;
+    bool hard_delete = 2;
+}
+
+message DeleteUserResponse {}
+
+message ListUsersRequest {
+    common.v1.PageRequest page = 1;
+    UserStatus status = 2;
+    UserRole role = 3;
+}
+
+message ListUsersResponse {
+    repeated User users = 1;
+    common.v1.PageResponse page = 2;
+}
+
+message LoginRequest {
+    string email    = 1;
+    string password = 2;
+}
+  
+message LoginResponse {
+    string access_token  = 1;
+    string refresh_token = 2;
+    int64  expires_in    = 3;
+    User   user          = 4;
+}
+  
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+  
+message RefreshTokenResponse {
+    string access_token = 1;
+    int64  expires_in   = 2;
+}
+  
+message ChangePasswordRequest {
+    string user_id       = 1;
+    string old_password  = 2;
+    string new_password  = 3;
+}
+
+message ChangePasswordResponse {}
+
+// WatchUserRequest for server-streaming
+message WatchUserRequest {
+  repeated string user_ids = 1;  // Watch these specific users
+}
+
+message UserEvent {
+    enum EventType {
+        EVENT_TYPE_UNSPECIFIED = 0;
+        EVENT_TYPE_CREATED = 1;
+        EVENT_TYPE_UPDATED = 2;
+        EVENT_TYPE_DELETED = 3;
+        EVENT_TYPE_SUSPENDED = 4;
+    }
+
+    EventType event_type = 1;
+    User user = 2;
+    google.protobuf.Timestamp occurred_at = 3;
+}
+
+
+// =======================================================
+// SERVICE DEFINITION
+// =======================================================
+service UserService {
+
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
+        option (google.api.http) = {
+            post : "/v1/users"
+            body : "*"
+        };
+    }
+
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+        option (google.api.http) = {
+            get: "/v1/users/{user_id}"
+        };
+    }
+
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+        option (google.api.http) = {
+            patch: "/v1/users/{user_id}"
+            body: "user"
+        };
+    }
+
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+        option (google.api.http) = {
+            delete: "/v1/users/{user_id}"
+        };
+    }
+    
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+        option (google.api.http) = {
+            get: "/v1/users"
+        };
+    }
+    
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/login"
+            body: "*"
+        };
+    }
+
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/refresh"
+            body: "*"
+        };
+    }
+    
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+        option (google.api.http) = {
+            post: "/v1/users/{user_id}/change-password"
+            body: "*"
+        };
+    }
+
+    rpc WatchUsers(WatchUserRequest) returns (stream UserEvent) {}
+}
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+  
+message ValidateTokenResponse {
+    bool   valid    = 1;
+    string user_id  = 2;
+    UserRole role   = 3;
+    google.protobuf.Timestamp expires_at = 4;
+}
