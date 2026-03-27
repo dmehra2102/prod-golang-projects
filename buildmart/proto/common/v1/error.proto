@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common.v1;
 
-option go_package = "github.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1;commonv1";
+option go_package = "github.com/dmehra2102/prod-golang-projects/buildmart/gen/go/common/v1;commonv1";
 
 message ErrorDetail {
     string error_code = 1;

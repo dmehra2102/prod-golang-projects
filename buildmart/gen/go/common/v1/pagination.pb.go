@@ -153,7 +153,7 @@ const file_common_v1_pagination_proto_rawDesc = "" +
 	"\fPageResponse\x12&\n" +
 	"\x0fnext_page_token\x18\x01 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x02 \x01(\x03R\ttotalSizeBQZOgithub.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1;commonv1b\x06proto3"
+	"total_size\x18\x02 \x01(\x03R\ttotalSizeBPZNgithub.com/dmehra2102/prod-golang-projects/buildmart/gen/go/common/v1;commonv1b\x06proto3"
 
 var (
 	file_common_v1_pagination_proto_rawDescOnce sync.Once

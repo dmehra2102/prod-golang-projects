@@ -7,7 +7,7 @@
 package userv1
 
 import (
-	v1 "github.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1"
+	v1 "github.com/dmehra2102/prod-golang-projects/buildmart/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1838,8 +1838,8 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\vAuthService\x126\n" +
 	"\x05Login\x12\x15.user.v1.LoginRequest\x1a\x16.user.v1.LoginResponse\x12K\n" +
 	"\fRefreshToken\x12\x1c.user.v1.RefreshTokenRequest\x1a\x1d.user.v1.RefreshTokenResponse\x12N\n" +
-	"\rValidateToken\x12\x1d.user.v1.ValidateTokenRequest\x1a\x1e.user.v1.ValidateTokenResponseBI\n" +
-	"\x15com.buildmart.user.v1P\x01Z.github.com/buildmart/api/gen/go/user/v1;userv1b\x06proto3"
+	"\rValidateToken\x12\x1d.user.v1.ValidateTokenRequest\x1a\x1e.user.v1.ValidateTokenResponseBe\n" +
+	"\x15com.buildmart.user.v1P\x01ZJgithub.com/dmehra2102/prod-golang-projects/buildmart/gen/go/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once

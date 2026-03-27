@@ -160,7 +160,7 @@ const file_common_v1_error_proto_rawDesc = "" +
 	"\x0eFieldViolation\x12\x14\n" +
 	"\x05field\x18\x01 \x01(\tR\x05field\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05value\x18\x03 \x01(\tR\x05valueBQZOgithub.com/dmehra2102/prod-golang-projects/buildmart/api/gen/common/v1;commonv1b\x06proto3"
+	"\x05value\x18\x03 \x01(\tR\x05valueBPZNgithub.com/dmehra2102/prod-golang-projects/buildmart/gen/go/common/v1;commonv1b\x06proto3"
 
 var (
 	file_common_v1_error_proto_rawDescOnce sync.Once
