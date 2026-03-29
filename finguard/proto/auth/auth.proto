@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package finguard.auth.v1;
+
+option go_package = "github.com/dmehra2102/prod-golang-projects/finguard/proto/auth";
+
+import "google/protobuf/timestamp.proto";
+
+service AuthService {
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc EnableMFA(EnableMFARequest) returns (EnableMFAResponse);
+    rpc VerifyMFA(VerifyMFARequest) returns (VerifyMFAResponse);
+    rpc DisableMFA(DisableMFARequest) returns (DisableMFAResponse);
+    rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+    rpc ConfirmPasswordReset(ConfirmPasswordResetRequest) returns (ConfirmPasswordResetResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+    rpc RevokeAllSessions(RevokeAllSessionsRequest) returns (RevokeAllSessionsResponse);
+    rpc ListActiveSessions(ListActiveSessionsRequest) returns (ListActiveSessionsResponse);
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string phone_number = 5;
+    string country_code = 6;
+}
+
+message RegisterResponse {
+    string user_id = 1;
+    string message = 2;
+    bool email_verification_sent = 3;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+    string device_id = 3;
+    string ip_address = 4;
+    string user_agent = 5;
+}
+
+message LoginResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    int64 expires_in = 3;
+    string token_type = 4;
+    bool mfa_required = 5;
+    string mfa_token = 6;
+    UserInfo user = 7;
+}
+
+message UserInfo {
+    string user_id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+    bool mfa_enabled = 5;
+    bool email_verified = 6;
+    google.protobuf.Timestamp created_at = 7;
+}
+
+message VerifyEmailRequest {
+    string token = 1;
+}
+
+message VerifyEmailResponse {
+    bool verified = 1;
+    string message = 2;
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    int64 expires_in = 3;
+}
+
+message LogoutRequest {
+    string session_id = 1;
+}
+  
+message LogoutResponse {
+    bool success = 1;
+}
+
+message EnableMFARequest {
+    string user_id = 1;
+}
+
+message EnableMFAResponse {
+    string secret = 1;
+    string qr_code_url = 2;
+    repeated string recovery_code = 3;
+}
+
+message VerifyMFARequest {
+    string mfa_token = 1;
+    string code = 2;
+}
+
+message VerifyMFAResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    int64 expires_in = 3;
+}
+
+message DisableMFARequest {
+    string user_id = 1;
+    string password = 2;
+    string code = 3;
+}
+  
+message DisableMFAResponse {
+    bool success = 1;
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+}
+  
+message ResetPasswordResponse {
+    string message = 1;
+}
+  
+message ConfirmPasswordResetRequest {
+    string token = 1;
+    string new_password = 2;
+}
+  
+message ConfirmPasswordResetResponse {
+    bool success = 1;
+}
+  
+message ChangePasswordRequest {
+    string user_id = 1;
+    string current_password = 2;
+    string new_password = 3;
+}
+  
+message ChangePasswordResponse {
+    bool success = 1;
+}
+  
+message ValidateTokenRequest {
+    string token = 1;
+}
+  
+message ValidateTokenResponse {
+    bool valid = 1;
+    string user_id = 2;
+    string email = 3;
+    repeated string roles = 4;
+    string session_id = 5;
+}
+  
+message RevokeAllSessionsRequest {
+    string user_id = 1;
+}
+  
+message RevokeAllSessionsResponse {
+    int32 revoked_count = 1;
+}
+  
+message ListActiveSessionsRequest {
+    string user_id = 1;
+}
+  
+message ListActiveSessionsResponse {
+    repeated Session sessions = 1;
+}
+  
+message Session {
+    string session_id = 1;
+    string device_id = 2;
+    string ip_address = 3;
+    string user_agent = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp last_active_at = 6;
+    bool current = 7;
+}
+  
